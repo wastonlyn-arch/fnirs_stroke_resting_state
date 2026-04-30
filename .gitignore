@@ -1,0 +1,39 @@
+# 忽略衍生数据目录
+derivatives/
+
+# 忽略原始 fNIRS 数据（未转换的 .nirs）
+*.nirs
+
+# 忽略转换后的 .snirf 文件（太大）
+*.snirf
+
+# 忽略 MATLAB 二进制数据文件
+*.mat
+
+# 忽略图片、压缩包等
+*.png
+*.jpg
+*.zip
+*.tar
+
+# 忽略 PyCharm IDE 配置
+.idea/
+
+# 忽略 Homer3 生成的临时文件夹（如 .nirs2.snirf 等）
+dataset/.nirs2.snirf/
+
+# 忽略 raw_fnirs 中可能产生的 derivatives 子文件夹
+dataset/raw_fnirs/derivatives/
+
+# 忽略 MATLAB 临时文件
+*.asv
+
+# 忽略 Python 缓存
+__pycache__/
+*.pyc
+
+# 保留必要的配置文件（如 .cfg）
+!*.cfg
+
+# 保留脚本文件（.m, .py, .md 等）
+# 这些默认不会被忽略，无需特别写
