@@ -1,0 +1,6 @@
+#ÒÀÀµ°üÁĞ±í
+pandas
+numpy
+mne
+matplotlib
+seaborn
