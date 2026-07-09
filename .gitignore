@@ -1,39 +1,61 @@
-# 忽略衍生数据目录
+# === Raw Data (never track — ~1GB binary) ===
+rawData/
+FX/
+sourcedata/
+
+# === BIDS symlinks (point to raw data) ===
+bids/
+
+# === Derivatives (MNE / Homer3 output folders) ===
 derivatives/
 
-# 忽略原始 fNIRS 数据（未转换的 .nirs）
+# === fNIRS data files (too large) ===
 *.nirs
-
-# 忽略转换后的 .snirf 文件（太大）
 *.snirf
-
-# 忽略 MATLAB 二进制数据文件
 *.mat
 
-# 忽略图片、压缩包等
-*.png
-*.jpg
-*.zip
-*.tar
+# === Python ===
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
 
-# 忽略 PyCharm IDE 配置
+# === Conda / Virtualenv ===
+.env/
+venv/
+miniconda*/
+
+# === IDE / Editor ===
+.vscode/
 .idea/
 
-# 忽略 Homer3 生成的临时文件夹（如 .nirs2.snirf 等）
-dataset/.nirs2.snirf/
+# === Output: large binary intermediates (regeneratable) ===
+output/processed/*.npy
+output/processed/*.pkl
 
-# 忽略 raw_fnirs 中可能产生的 derivatives 子文件夹
-dataset/raw_fnirs/derivatives/
+# === OS junk ===
+.DS_Store
+Thumbs.db
+*:Zone.Identifier
 
-# 忽略 MATLAB 临时文件
+# === Secrets / Credentials ===
+.env
+*.secret
+
+# === MATLAB temp files ===
 *.asv
 
-# 忽略 Python 缓存
-__pycache__/
-*.pyc
+# === Large archives (keep on disk, not in git) ===
+*.zip
+*.tar
+*.png
+*.jpg
 
-# 保留必要的配置文件（如 .cfg）
+# === Log files ===
+*.log
+
+# === Claude internal ===
+.claude/
+
+# === Keep config files ===
 !*.cfg
-
-# 保留脚本文件（.m, .py, .md 等）
-# 这些默认不会被忽略，无需特别写

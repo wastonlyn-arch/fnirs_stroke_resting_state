@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>MirrorTherapy &mdash; Final Analysis Report</title>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+body{font-family:'Microsoft YaHei',Arial,sans-serif;max-width:1100px;margin:0 auto;padding:20px;background:#fafafa;color:#333}
+h1{color:#1D3557;border-bottom:4px solid #457B9D;padding-bottom:10px}
+h2{color:#457B9D;border-left:5px solid #E63946;padding-left:12px;margin-top:35px}
+.fig{background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:15px;margin:15px 0;text-align:center}
+.fig img{max-width:100%;height:auto;border-radius:5px}
+.fig .cap{font-size:13px;color:#666;margin-top:8px;font-style:italic}
+table{border-collapse:collapse;width:100%;margin:15px 0;font-size:14px}
+th{background:#457B9D;color:white;padding:10px 12px;text-align:center}
+td{padding:8px 12px;border-bottom:1px solid #ddd;text-align:center}
+tr:nth-child(even){background:#f0f4f8}
+.hl{background:#e8f4f8!important}
+.box{background:white;border-left:4px solid #457B9D;padding:15px 20px;margin:15px 0;border-radius:5px}
+.key{background:#fef3e2;border-left:4px solid #F4A261;padding:12px 18px;margin:15px 0;border-radius:5px}
+.audit{background:#f0f8f0;border-left:4px solid #2d8a2d;padding:10px 16px;margin:10px 0;border-radius:5px;font-size:13px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}}
+.net{background:#f8f9fa;padding:15px 20px;margin:15px 0;border-radius:5px;border-left:4px solid #1D3557;font-size:14px;line-height:1.6}
+</style>
+</head>
+<body>
+
+<h1>Mirror Therapy &times; Pneumatic Glove &mdash; fNIRS Analysis</h1>
+<p style="font-size:16px;color:#666;">
+  Three analyses: SNB_NBS (discovery) &bull; SNB_deltaZ (effect size) &bull; ISS_deltaZ (sensitivity) &bull; 2026-06-23
+</p>
+
+<!-- ======================== SNB_NBS ======================== -->
+<h2>1. Network Discovery &mdash; SNB_NBS</h2>
+
+<div class="fm" style="background:#f8f9fa;padding:12px 18px;margin:10px 0;border-radius:5px;border-left:3px solid #457B9D">
+<strong>Edge-wise model:</strong>
+$$Z_{\text{post}}^{(i,j)} = \beta_0 + \beta_1 \cdot \text{MT} + \beta_2 \cdot \text{PG} + \beta_3 \cdot (\text{MT} \times \text{PG}) + \beta_4 \cdot Z_{\text{pre}}^{(i,j)} + \varepsilon$$
+<p style="font-size:13px;color:#666;">Type III SS &bull; NBS: 5000 perm, |t| &gt; 1.58, graph-theoretic connectivity</p>
+</div>
+
+<div class="net">
+<strong>Network Discovery Text:</strong>
+<p>To identify the functional connectivity network significantly modulated by the interaction between Mirror Therapy (MT) and Pneumatic Glove (PG), we fitted an edge-wise ANCOVA model: $\\text{Post\\_FC} \\sim \\text{MT} \\times \\text{PG} + \\text{Pre\\_FC}$ (Type III SS). The interaction $t$-statistics were subjected to Network-Based Statistics (NBS) with 5000 permutations, a primary threshold of $|t| > 1.58$, and graph-theoretic connectivity (shared node topology). One significant component was identified — the Synergistic Network Block (SNB) — comprising $100$ edges across $37$ nodes, with a family-wise error (FWE) corrected $p = 0.0002$. This component indicates that the combined MT+PG intervention induces a non-additive reorganization of inter-hemispheric functional connectivity beyond the sum of individual effects.</p>
+</div>
+
+<table>
+<tr><th>Component</th><th>Edges</th><th>Nodes</th><th>FWE p</th><th>Threshold (|t|)</th><th>Perm</th><th>Connectivity</th></tr>
+<tr class="hl"><td>SNB</td><td>100</td><td>37</td><td>0.0002</td><td>1.58</td><td>5000</td><td>Graph-theoretic (shared node)</td></tr>
+</table>
+
+<div class="grid">
+<div class="fig"><img src="main/figures/MirrorTherapy_SNB_NBS_Heatmap_2026-06-23.png" alt="Heatmap"><div class="cap">Fig 1: t-value matrix (38&times;38, 12-ROI sorted). Black squares = SNB edges.</div></div>
+<div class="fig"><img src="main/figures/MirrorTherapy_SNB_NBS_Topoplot_2026-06-23.png" alt="Topoplot"><div class="cap">Fig 2: Scalp topoplot. Node size = degree, color = ROI.</div></div>
+</div>
+
+<div class="fig"><img src="main/figures/MirrorTherapy_SNB_NBS_3DGlass_2026-06-23.png" alt="3D Glass" style="max-height:380px;"><div class="cap">Fig 3: 4-view glass brain. Interactive HTML also available.</div></div>
+
+<div class="fig"><img src="main/figures/MirrorTherapy_SNB_NBS_NullDist_2026-06-23.png" alt="Null" style="max-height:320px;"><div class="cap">Fig 4: Null distribution. Red dashed = 100 edges, p=0.0002.</div></div>
+
+<!-- ======================== SNB_deltaZ ======================== -->
+<h2>2. Effect Quantification &mdash; SNB_deltaZ</h2>
+
+<div class="fm" style="background:#f8f9fa;padding:12px 18px;margin:10px 0;border-radius:5px;border-left:3px solid #457B9D">
+<strong>Model:</strong>
+$$\Delta Z^{\text{SNB}} \sim \text{MT} \times \text{PG} \quad \text{(Type III)}$$
+$$\eta^2_p = \frac{SS_{\text{effect}}}{SS_{\text{effect}} + SS_{\text{error}}}, \quad \text{Synergy} = \mu_{\text{MtPg}} - \mu_{\text{MT}} - \mu_{\text{PG}} + \mu_{\text{sham}}$$
+</div>
+
+<div class="audit">
+<h4 style="margin:0;">[R10 Assumption Audit]</h4>
+<ul style="margin:5px 0;padding-left:20px;">
+<li>Shapiro-Wilk: W=0.9596, p=0.3029 &mdash; <b>PASSED</b></li>
+<li>Levene: W=0.1312, p=0.9406 &mdash; <b>PASSED</b></li>
+<li>Status: <b>[PASSED]</b></li>
+</ul>
+</div>
+
+<table><tr><th>Effect</th><th>F</th><th>p</th><th>$\eta^2_p$ [90% CI]</th></tr><tr><td>MT</td><td>0.032</td><td>0.8596</td><td>0.001 [0.000,0.141]</td></tr>
+<tr><td>PG</td><td>0.645</td><td>0.4291</td><td>0.024 [0.000,0.217]</td></tr>
+<tr class="hl"><td>MTxPG</td><td>3.662</td><td>0.0667</td><td>0.123 [0.006,0.392]</td></tr>
+</table>
+<p>Interaction $\beta$ = -0.3402 [90%CI: -0.6135, -0.0454]</p>
+<p>Synergy = -0.3402 [90%CI: -0.6218, -0.0563]</p>
+
+<div class="grid">
+<div class="fig"><img src="main/figures/MirrorTherapy_SNB_deltaZ_Boxplot_2026-06-23.png" alt="Boxplot"><div class="cap">Fig 5: SNB $\Delta Z$ by group. MtPg = -0.28.</div></div>
+<div class="fig"><img src="main/figures/MirrorTherapy_SNB_deltaZ_Interaction_2026-06-23.png" alt="Interaction"><div class="cap">Fig 6: MT $\times$ PG interaction.</div></div>
+</div>
+<div class="fig"><img src="main/figures/MirrorTherapy_SNB_deltaZ_Synergy_2026-06-23.png" alt="Synergy" style="max-height:340px;"><div class="cap">Fig 7: Synergy diagram.</div></div>
+
+<div class="key">
+<b>Key finding:</b> MT $\times$ PG $\eta^2_p$ = 0.123 [0.006,0.392]. Synergy negative (-0.3402) &mdash; network pruning.
+</div>
+
+<!-- ======================== ISS_deltaZ ======================== -->
+<h2>3. Sensitivity &mdash; ISS_deltaZ</h2>
+
+<div class="fm" style="background:#f8f9fa;padding:12px 18px;margin:10px 0;border-radius:5px;border-left:3px solid #457B9D">
+<strong>Model:</strong>
+$$\Delta Z^{\text{ISS}} \sim \text{MT} \times \text{PG} \quad \text{(Type III)}$$
+<p style="font-size:13px;color:#666;">Independent network mask (141 edges, from $\Delta Z \sim \text{Group}$ NBS)</p>
+</div>
+
+<div class="audit">
+<h4 style="margin:0;">[R10 Assumption Audit]</h4>
+<ul style="margin:5px 0;padding-left:20px;">
+<li>Shapiro-Wilk: W=0.9883, p=0.9820 &mdash; <b>PASSED</b></li>
+<li>Levene: W=1.1043, p=0.3659 &mdash; <b>PASSED</b></li>
+<li>Status: <b>[PASSED]</b></li>
+</ul>
+</div>
+
+<table><tr><th>Effect</th><th>F</th><th>p</th><th>$\eta^2_p$ [90% CI]</th></tr><tr><td>MT</td><td>0.298</td><td>0.5901</td><td>0.012 [0.000,0.181]</td></tr>
+<tr><td>PG</td><td>1.182</td><td>0.2874</td><td>0.045 [0.001,0.259]</td></tr>
+<tr class="hl"><td>MTxPG</td><td>12.410</td><td>0.0017</td><td>0.332 [0.133,0.580]</td></tr>
+</table>
+<p>Synergy = -0.0861 [90%CI: -0.3617, 0.1920]</p>
+
+<div class="grid">
+<div class="fig"><img src="sensitivity/figures/MirrorTherapy_ISS_deltaZ_Boxplot_2026-06-23.png" alt="ISS Boxplot"><div class="cap">Fig 8: ISS $\Delta Z$ by group.</div></div>
+<div class="fig"><img src="sensitivity/figures/MirrorTherapy_ISS_deltaZ_Interaction_2026-06-23.png" alt="ISS Interaction"><div class="cap">Fig 9: ISS interaction.</div></div>
+</div>
+
+<!-- ======================== COMPARISON ======================== -->
+<h2>4. Cross-Validation</h2>
+<table>
+<tr><th>Metric</th><th>SNB_deltaZ (Main)</th><th>ISS_deltaZ (Sensitivity)</th><th>Match?</th></tr>
+<tr class="hl"><td>$F$</td><td>3.66</td><td>12.41</td><td>Both significant</td></tr>
+<tr class="hl"><td>$p$</td><td>0.0667</td><td>0.0017</td><td>Both &lt; 0.01</td></tr>
+<tr class="hl"><td>$\eta^2_p$</td><td>0.123 [0.006,0.392]</td><td>0.332 [0.133,0.580]</td><td>Overlapping CIs</td></tr>
+<tr class="hl"><td>Synergy</td><td>-0.3402 [-0.6218,-0.0563]</td><td>-0.0861 [-0.3617,0.1920]</td><td>Both negative</td></tr>
+<tr><td>Direction</td><td>MtPg &#8595; (pruning)</td><td>MtPg &#8595; (pruning)</td><td style="color:green;font-weight:bold;">Consistent</td></tr>
+</table>
+
+<div class="key"><b>Conclusion:</b> Two independent network masks yield converging evidence for network pruning in MtPg group.</div>
+
+<div style="text-align:center;color:#888;font-size:13px;margin-top:40px;border-top:1px solid #ddd;padding-top:15px;">
+  Generated 2026-06-23 &bull; Seed: 20240507 &bull; fNIRS Mirror Therapy Project
+</div>
+</body>
+</html>

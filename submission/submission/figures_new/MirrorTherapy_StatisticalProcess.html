@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>Statistical Analysis Process / 统计分析过程</title>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+body{font-family:'Microsoft YaHei','Segoe UI',Arial,sans-serif;max-width:1100px;margin:0 auto;padding:20px;background:#fafafa;color:#333;line-height:1.7}
+h1{color:#1D3557;border-bottom:4px solid #457B9D;padding-bottom:10px}
+h2{color:#457B9D;border-left:5px solid #E63946;padding-left:12px;margin-top:35px}
+h3{color:#1D3557;margin-top:25px}
+h4{color:#457B9D;margin-top:18px}
+table{border-collapse:collapse;width:100%;margin:15px 0;font-size:14px}
+th{background:#457B9D;color:white;padding:10px 12px;text-align:center}
+td{padding:8px 12px;border-bottom:1px solid #ddd;text-align:center}
+tr:nth-child(even){background:#f0f4f8}
+.box{background:white;border-left:4px solid #457B9D;padding:15px 20px;margin:15px 0;border-radius:5px}
+.code{background:#1e1e1e;color:#d4d4d4;padding:12px 16px;border-radius:5px;font-family:'Consolas','Courier New',monospace;font-size:13px;overflow-x:auto;margin:10px 0}
+.code .kw{color:#569cd6}.code .fn{color:#dcdcaa}.code .str{color:#ce9178}.code .cm{color:#6a9955}
+.lang-en{color:#666;font-style:italic;font-size:13px;margin-left:5px}
+.sec{background:white;padding:5px 18px;margin:20px 0;border-radius:8px;box-shadow:0 1px 4px rgba(0,0,0,0.06)}
+.en{display:block;color:#555;font-style:italic;font-size:14px;margin-top:2px}
+</style>
+</head>
+<body>
+
+<h1>Statistical Analysis Process / 统计分析过程</h1>
+<p style="font-size:16px;color:#666;">
+  fNIRS Mirror Therapy Project &bull; 2&times;2 Factorial Design (MT &times; PG) &bull; 2026-05-07
+</p>
+
+<div class="box">
+<h3>Table of Contents / 目录</h3>
+<ol>
+  <li><a href="#s1">Data Pre-processing / 数据预处理</a></li>
+  <li><a href="#s2">Network-Based Statistics (NBS) / 网络统计</a></li>
+  <li><a href="#s3">ANOVA/ANCOVA Models / 方差/协方差分析</a></li>
+  <li><a href="#s4">Bootstrap Confidence Intervals / Bootstrap 置信区间</a></li>
+  <li><a href="#s5">R10 Assumption Audit / 统计前提预检</a></li>
+  <li><a href="#s6">Multiple Comparison Correction / 多重比较校正</a></li>
+  <li><a href="#s7">Effect Size Calculation / 效应量计算</a></li>
+  <li><a href="#s8">Software &amp; Reproducibility / 软件与可复现性</a></li>
+</ol>
+</div>
+
+<!-- ============ S1 ============ -->
+<div class="sec">
+<h2 id="s1">1. Data Pre-processing / 数据预处理</h2>
+
+<h3>1.1 Functional Connectivity / 功能连接计算</h3>
+<p>
+<b>中文</b>：每个被试的静息态 fNIRS 数据（0.01&ndash;0.1 Hz 带通滤波后）中，计算所有 38 个通道两两之间的 Pearson 相关系数 $r$，然后通过 Fisher Z 变换转换为近似正态分布的 Z 值：
+</p>
+<div class="code">Z = arctanh(r)</div>
+
+<h3>1.2 Channel Selection / 通道选择</h3>
+<p>
+对每个被试分别处理基线（ses-baseline）和后测（ses-post）两个时间点。每个时间点的 .mat 文件包含 <code>Z</code>（连接矩阵）和 <code>good_channels</code>（通过质量控制的通道索引）。对于每个被试：
+</p>
+<ul>
+  <li>取两个时间点 good_channels 的交集作为共同好通道：<code>common = intersect(good_pre, good_post)</code></li>
+  <li>仅用共同好通道计算所有边（上三角元素）</li>
+  <li>若某条边的任一端点不在 common 中，该边标记为 NaN</li>
+  <li><b>剔除标准</b>：若共同好通道数 &lt; 总通道数的 30%（即 &lt; 12/38），则剔除该被试</li>
+</ul>
+<p class="en">
+For each subject, Pearson correlation r between all 38 channel pairs is computed from resting-state fNIRS data (bandpass 0.01&ndash;0.1 Hz), then Fisher Z-transformed. Pre and post sessions each have a .mat file with Z matrix and good_channels. The intersection of pre and post good channels is used. A subject is excluded if fewer than 30% of channels (12/38) are common.
+</p>
+
+<h3>1.3 Delta Z Calculation / ΔZ 计算</h3>
+<p>对每条边 $(i,j)$，被试 $s$ 的 ΔZ 为：</p>
+<div class="code">delta_Z[i,j] = Z_post[i,j] - Z_pre[i,j]</div>
+<p>对于组件级分析（SNB_deltaZ、ISS_deltaZ），组件的平均 ΔZ 为：</p>
+<div class="code">mean_delta_Z_s = mean(delta_Z[i,j] for all edges (i,j) in the component)</div>
+<p>注意：仅对非 NaN 的边求平均，不同被试可能基于不同数量的有效边。</p>
+<p class="en">
+For each edge (i,j), delta_Z = Z_post - Z_pre. For component-level analyses, the mean delta_Z is the average over all non-NaN edges within the component.
+</p>
+</div>
+
+<!-- ============ S2 ============ -->
+<div class="sec">
+<h2 id="s2">2. Network-Based Statistics (NBS) / 网络统计</h2>
+
+<h3>2.1 SNB_NBS: Interaction Effect NBS / 交互效应 NBS</h3>
+<p><b>Model / 模型</b>：</p>
+<div class="code">Z_post[i,j] ~ 1 + MT + PG + MT:PG + Z_pre[i,j]</div>
+<p>对每条边 $(i,j)$ 独立拟合上述 ANCOVA 模型（OLS + Type III SS），提取交互项 MT:PG 的 t 统计量。</p>
+<p class="en">For each edge (i,j), an ANCOVA model is fitted independently: Post_FC ~ MT + PG + MT:PG + Pre_FC. The t-statistic for the MT:PG interaction is extracted.</p>
+
+<h3>2.2 NBS Parameters / NBS 参数</h3>
+<table>
+<tr><th>Parameter</th><th>Value / 数值</th><th>Rationale / 理由</th></tr>
+<tr><td>Primary threshold / 初级阈值</td><td>$|t| &gt; 1.58$</td><td>Equivalent to $F &gt; 2.5$, conventional for fNIRS NBS</td></tr>
+<tr><td>Permutations / 置换次数</td><td>5000</td><td>Balance between precision and computation</td></tr>
+<tr><td>Connectivity / 连通定义</td><td>Graph-theoretic (shared node)</td><td>No 3D channel coordinates available</td></tr>
+<tr><td>FWER correction / 族系错误校正</td><td>Component-level max-null</td><td>Zalesky et al. (2010) NeuroImage</td></tr>
+</table>
+
+<h3>2.3 P-value Calculation / p 值计算</h3>
+<p>对每条观测到的组件，p 值为：</p>
+<div class="code">p = (sum(max_sizes_null >= n_edges_observed) + 1) / (n_permutations + 1)</div>
+<p>其中 <code>max_sizes_null</code> 是 5000 次置换中每次最大组件大小的向量。加 1 为避免 p = 0。</p>
+<p class="en">The p-value for each observed component is computed from the permutation null distribution: (count of null max sizes >= observed size + 1) / (5000 + 1).</p>
+</div>
+
+<!-- ============ S3 ============ -->
+<div class="sec">
+<h2 id="s3">3. ANOVA / ANCOVA Models / 方差与协方差分析</h2>
+
+<h3>3.1 Component-Level ANOVA (SNB_deltaZ, ISS_deltaZ)</h3>
+<div class="code">delta_Z_component ~ 1 + MT + PG + MT:PG  (Type III SS)</div>
+<p><b>中文</b>：在已确定的 NBS 组件上，以组件平均 ΔZ 为因变量，进行两因素完全析因 ANOVA。选择 Type III 平方和的原因：</p>
+<ul>
+  <li>适用于存在交互项的析因设计</li>
+  <li>对不平衡设计（n=6 vs n=8）更稳健</li>
+  <li>是交互效应检验的标准选择（Maxwell &amp; Delaney, 2004）</li>
+</ul>
+<p class="en">Two-way factorial ANOVA on the component mean delta_Z. Type III SS is chosen because it is standard for factorial designs with interaction, robust to unbalanced samples (n=6 vs n=8), and expected by reviewers.</p>
+
+<h3>3.2 Post-hoc ANCOVA (Subnetwork Analysis)</h3>
+<div class="code">Post_FC_subnetwork ~ 1 + MT + PG + MT:PG + Pre_FC_subnetwork  (Type II SS)</div>
+<p><b>中文</b>：在子网络分解分析中，采用 Type II 平方和。原因：在 ANCOVA 中，Type II 对主效应的检验在协变量存在时比 Type III 更稳定（Fox, 2016），且交互项 F 值在 Type II 和 Type III 下一致。</p>
+<p class="en">Type II SS is used for ANCOVA with covariates because it avoids non-essential collinearity issues (Fox, 2016). The interaction F-value is identical between Type II and Type III.</p>
+
+<h3>3.3 CATE Model / CATE 模型</h3>
+<div class="code">Post_FC ~ 1 + Group + Pre_FC  (Type II SS)</div>
+<p>用于计算组效应，作为补充参考，不进行交互推断。</p>
+<p class="en">Group effect model for supplementary reference. No interaction inference is drawn.</p>
+</div>
+
+<!-- ============ S4 ============ -->
+<div class="sec">
+<h2 id="s4">4. Bootstrap Confidence Intervals / Bootstrap 置信区间</h2>
+
+<h3>4.1 Parameters / 参数</h3>
+<table>
+<tr><th>Parameter</th><th>Value</th></tr>
+<tr><td>Method / 方法</td><td>Non-parametric bootstrap (Efron, 1979)</td></tr>
+<tr><td>Resampling unit / 重采样单位</td><td>Subject (with replacement)</td></tr>
+<tr><td>Iterations / 迭代次数</td><td>1000</td></tr>
+<tr><td>CI method / CI 方法</td><td>Percentile</td></tr>
+<tr><td>CI level / 置信水平</td><td>90% (5th &amp; 95th percentiles)</td></tr>
+<tr><td>Random seed / 随机种子</td><td>20240507</td></tr>
+</table>
+
+<h3>4.2 Algorithm / 算法</h3>
+<p>对每个要 Bootstrap 的统计量 $\theta$（如偏 $\eta^2$、协同指数、$\beta$ 系数）：</p>
+<ol>
+  <li>从原始 $N$ 个被试中有放回抽样 $N$ 次 → 一条 Bootstrap 样本</li>
+  <li>在该样本上重新计算 $\theta$</li>
+  <li>重复 1000 次 → $\theta^*_1, \theta^*_2, \dots, \theta^*_{1000}$</li>
+  <li>剔除失败的样本（如某次 Bootstrap 中某组缺失导致模型不可拟合）</li>
+  <li>取 $B_{\text{valid}}$ 个有效样本的 5% 和 95% 百分位数作为 90% CI</li>
+</ol>
+<p class="en">Non-parametric bootstrap: resample subjects with replacement, recompute statistic, repeat 1000 times. Failed samples (e.g., empty group) are excluded. Percentile method for 90% CI.</p>
+
+<h3>4.3 Bootstrap for Synergy Index / 协同指数 Bootstrap</h3>
+<p>协同指数定义为：</p>
+<div class="code">Synergy = mu[MtPg] - mu[MT] - mu[PG] + mu[sham]</div>
+<p>每次 Bootstrap 中，对有放回抽得的被试按组求均值，计算协同指数。若某次 Bootstrap 中某组无被试，该次记为 NaN 并丢弃。</p>
+<p class="en">Synergy = MtPg mean - MT mean - PG mean + sham mean. In each bootstrap iteration, group means are computed from the resampled subjects. If a group is empty, the iteration is discarded.</p>
+</div>
+
+<!-- ============ S5 ============ -->
+<div class="sec">
+<h2 id="s5">5. R10 Assumption Audit / 统计前提预检</h2>
+
+<h3>5.1 Protocol / 协议</h3>
+<p>在执行任何推断性统计检验之前，自动运行以下前提假设检验：</p>
+
+<table>
+<tr><th>Analysis Type / 分析类型</th><th>Test / 检验</th><th>Remedy if violated / 补救措施</th></tr>
+<tr><td>Independent t-test</td><td>Shapiro-Wilk (normality) + Levene (homogeneity)</td><td>Welch correction / Mann-Whitney</td></tr>
+<tr><td>Factorial ANOVA</td><td>Shapiro-Wilk on residuals + Levene</td><td>Permutation test / robust ANOVA</td></tr>
+<tr><td>ANCOVA</td><td>Shapiro-Wilk (residuals) + Levene + Slope homogeneity</td><td>Switch to delta_Z ANOVA (avoid slope assumption)</td></tr>
+<tr><td>Correlation</td><td>Bivariate normality (Shapiro on X &amp; Y)</td><td>Spearman instead of Pearson</td></tr>
+</table>
+
+<h3>5.2 Output Format / 输出格式</h3>
+<div class="code">&gt;&gt;&gt; [R10 Assumption Audit]
+&gt; - Normality (Shapiro-Wilk): W=0.99, p=0.95
+&gt; - Homogeneity (Levene): W=1.05, p=0.39
+&gt; - Slope Homogeneity (ANCOVA only): p=0.12
+&gt; - Status: [PASSED]</div>
+<p class="en">Each statistical test is preceded by an automated assumption audit block. If assumptions are violated, a warning is issued and an alternative method is recommended.</p>
+
+<h3>5.3 Decision Logic / 决策逻辑</h3>
+<ul>
+  <li><b>PASSED</b> ($p &gt; 0.05$): Report parametric results directly</li>
+  <li><b>WARNING</b> ($p &lt; 0.05$): Issue warning, suggest data transformation, Welch correction, or non-parametric alternative</li>
+  <li>In this project, the ANCOVA slope homogeneity failed (p=0.042), so the main analysis switched to $\Delta Z$ ANOVA which does not rely on this assumption</li>
+</ul>
+</div>
+
+<!-- ============ S6 ============ -->
+<div class="sec">
+<h2 id="s6">6. Multiple Comparison Correction / 多重比较校正</h2>
+
+<h3>6.1 NBS Level / NBS 层级</h3>
+<p>NBS 本身在组件级（而非边级）控制 FWER。通过 5000 次置换检验，每次记录最大组件大小，观测组件的大小在零分布中的位置决定其显著性。校正对象是组件，而非逐条边。</p>
+<p class="en">NBS controls FWER at the component level (not edge level). The 5000-permutation null distribution of max component size determines significance. The correction is for the number of components, not edges.</p>
+
+<h3>6.2 Post-hoc Level / 事后比较层级</h3>
+<p>对 CATE 的两两比较，采用 FDR-BH 校正（Benjamini &amp; Hochberg, 1995），通过 statsmodels 的 <code>multipletests(method='fdr_bh')</code> 实现。</p>
+
+<h3>6.3 Brain-Behavior Level / 脑-行为层级</h3>
+<p>24 对 Spearman 相关全部经过 FDR-BH 校正。仅当 $q &lt; 0.05$ 时才认定为统计显著。本项目中无相关对通过校正。</p>
+<p class="en">All 24 brain-behavior Spearman correlations are FDR-BH corrected. None survived correction in this project.</p>
+
+<h3>6.4 Subnetwork Level / 子网络层级</h3>
+<p>子网络分解分析（Inter-Hemi, Ipsi-Intra, Contra-Intra）明确标注为<b>探索性、未校正</b>，不用于确证性推断。</p>
+<p class="en">Subnetwork decomposition is marked as exploratory and uncorrected, not for confirmatory inference.</p>
+</div>
+
+<!-- ============ S7 ============ -->
+<div class="sec">
+<h2 id="s7">7. Effect Size Calculation / 效应量计算</h2>
+
+<h3>7.1 Partial Eta-Squared / 偏 η²</h3>
+<div class="code">eta2_p = SS_effect / (SS_effect + SS_error)</div>
+<p>适用于所有 ANOVA/ANCOVA 模型。以 Bootstrap 90% CI 作为不确定性度量。</p>
+<p class="en">Partial eta-squared for all ANOVA/ANCOVA models, with bootstrap 90% CI.</p>
+
+<h3>7.2 Cohen's d / Cohen d</h3>
+<div class="code">d = (mean_1 - mean_2) / pooled_sd</div>
+<p>用于 CATE 模型的两两比较。</p>
+<p class="en">Cohen's d for pairwise comparisons in the CATE model.</p>
+
+<h3>7.3 Spearman's Rho / Spearman 等级相关</h3>
+<div class="code">rs = 1 - 6 * sum(d_i^2) / (n * (n^2 - 1))</div>
+<p>用于脑-行为相关性分析（选择 Spearman 而非 Pearson 的原因：部分临床变量分布非正态）。</p>
+<p class="en">Spearman rank correlation for brain-behavior analysis (chosen over Pearson due to non-normal clinical variables).</p>
+
+<h3>7.4 Synergy Index / 协同指数</h3>
+<div class="code">Synergy = mu(MtPg) - mu(MT) - mu(PG) + mu(sham)</div>
+<p>等价于 2&times;2 析因设计中交互项的 $\beta$ 系数。正值表示超加性协同（1+1 &gt; 2），负值表示拮抗/网络精简（1+1 &lt; 2）。</p>
+<p class="en">The synergy index equals the interaction coefficient beta in a 2x2 factorial design. Positive = super-additive synergy; negative = antagonistic / network pruning.</p>
+</div>
+
+<!-- ============ S8 ============ -->
+<div class="sec">
+<h2 id="s8">8. Software &amp; Reproducibility / 软件与可复现性</h2>
+
+<h3>8.1 Software Environment / 软件环境</h3>
+<table>
+<tr><th>Component</th><th>Specification</th></tr>
+<tr><td>Python</td><td>3.13 (fnirs_env conda environment)</td></tr>
+<tr><td>Statistics</td><td>statsmodels 0.14.6, scipy 1.17.1</td></tr>
+<tr><td>fNIRS processing</td><td>MNE 1.12.1, MNE-NIRS 0.7.3, nilearn 0.13.1</td></tr>
+<tr><td>Visualization</td><td>matplotlib 3.10.9, seaborn 0.13.2, nilearn</td></tr>
+<tr><td>Report generation</td><td>weasyprint 68.1, MathJax 3 (CDN)</td></tr>
+</table>
+
+<h3>8.2 Random Seed / 随机种子</h3>
+<p>所有随机过程使用统一种子 <code>20240507</code>（编码为 2024-05-07）：</p>
+<div class="code">numpy.random.seed(20240507)</div>
+<p>该种子控制：Bootstrap 有放回抽样（ANOVA η² CI、协同指数 CI、$\beta$ CI）。NBS 的 5000 次置换在独立脚本中实现，使用独立的随机状态。</p>
+<p class="en">All random processes use a single seed: 20240507. This controls bootstrap resampling. NBS permutations use a separate random state in the NBS script.</p>
+
+<h3>8.3 Output File Naming / 输出文件命名</h3>
+<table>
+<tr><th>Pattern / 格式</th><th>Example / 示例</th></tr>
+<tr><td>MirrorTherapy_{Analysis}_{Metric}_{Date}.{ext}</td><td>MirrorTherapy_SNB_deltaZ_Boxplot_2026-05-07.pdf</td></tr>
+<tr><td>MirrorTherapy_{Analysis}_{Metric}_{Date}.{ext}</td><td>MirrorTherapy_SNB_NBS_Heatmap_2026-05-07.png</td></tr>
+</table>
+<p>命名模板遵循 Rule 3 规范：包含项目名、分析类型、度量和日期，确保可追溯性。</p>
+<p class="en">File naming follows the project convention (Project_Analysis_Metric_Date) for traceability.</p>
+
+<h3>8.4 Data Flow / 数据流</h3>
+<div class="code" style="font-size:12px;line-height:1.5;">
+[Raw .mat files] --&gt; common_good channels --&gt; edge-wise Z matrices (38x38)
+    |
+    +--&gt; NBS (nbs_glm_pathA.py) --&gt; SNB mask (220 edges)
+    |       |
+    |       +--&gt; snb_nbs_visualize.py --&gt; heatmap, topo, 3D, null dist
+    |       +--&gt; snb_ancova.py --&gt; SNB_deltaZ (ANOVA + figures)
+    |
+    +--&gt; NBS (nbs_analysis.py) --&gt; ISS mask (141 edges)
+    |       |
+    |       +--&gt; iss_sensitivity.py --&gt; ISS_deltaZ (ANOVA + figures)
+    |
+    +--&gt; brain_behavior.py --&gt; Spearman correlation + FDR
+    |
+    +--&gt; generate_report.py --&gt; MirrorTherapy_FinalReport.html/.pdf
+    +--&gt; generate_supplementary.py --&gt; MirrorTherapy_SupplementaryReport.html/.pdf</div>
+</div>
+
+<div style="text-align:center;color:#888;font-size:13px;margin-top:40px;border-top:1px solid #ddd;padding-top:15px;">
+  Generated 2026-05-07 &bull; Statistical Analysis Process &bull; fNIRS Mirror Therapy Project
+</div>
+</body>
+</html>

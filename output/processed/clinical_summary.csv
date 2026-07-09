@@ -1,0 +1,5 @@
+group_label,n,age_mean,age_sd,fma_total_delta_mean,fma_total_delta_sd,fma_dist_delta_mean,fma_dist_delta_sd,arat_delta_mean,arat_delta_sd,bi_delta_mean,bi_delta_sd
+MT,20,64.45,12.93,10.9,10.49,4.1,4.78,6.6,8.28,15.0,10.26
+MtPg,20,62.35,12.69,21.5,16.19,11.25,8.84,17.95,14.64,20.75,18.94
+PG,20,64.45,9.93,9.3,11.85,3.6,5.35,7.6,8.92,12.0,11.85
+Sham,20,59.4,10.65,10.85,13.08,4.65,5.98,6.25,6.7,18.0,12.92

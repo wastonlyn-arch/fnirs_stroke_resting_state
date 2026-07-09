@@ -1,0 +1,5 @@
+outcome,effect,t,p,d,M_MT+,M_MT-
+fma_dist_delta,MT|PG-,-0.321,0.7496,-0.102,4.1,4.65
+fma_dist_delta,MT|PG+,3.309,0.0021,1.047,11.25,3.6
+arat_delta,MT|PG-,0.147,0.8839,0.046,6.6,6.25
+arat_delta,MT|PG+,2.701,0.0103,0.854,17.95,7.6

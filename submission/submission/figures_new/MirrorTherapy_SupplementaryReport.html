@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<title>MirrorTherapy &mdash; Supplementary Materials</title>
+<script>MathJax={tex:{inlineMath:[['$','$'],['\\(','\\)']],displayMath:[['$$','$$'],['\\[','\\]']]}};</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"></script>
+<style>
+body{font-family:'Microsoft YaHei',Arial,sans-serif;max-width:1100px;margin:0 auto;padding:20px;background:#fafafa;color:#333}
+h1{color:#1D3557;border-bottom:4px solid #457B9D;padding-bottom:10px}
+h2{color:#457B9D;border-left:5px solid #E63946;padding-left:12px;margin-top:35px}
+h3{color:#1D3557;margin-top:25px}
+.fig{background:white;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,0.1);padding:15px;margin:15px 0;text-align:center}
+.fig img{max-width:100%;height:auto;border-radius:5px}
+.fig .cap{font-size:13px;color:#666;margin-top:8px;font-style:italic}
+table{border-collapse:collapse;width:100%;margin:15px 0;font-size:14px}
+th{background:#457B9D;color:white;padding:10px 12px;text-align:center}
+td{padding:8px 12px;border-bottom:1px solid #ddd;text-align:center}
+tr:nth-child(even){background:#f0f4f8}
+.hl{background:#e8f4f8!important}
+.box{background:white;border-left:4px solid #457B9D;padding:15px 20px;margin:15px 0;border-radius:5px}
+.warn{background:#fff3e0;border-left:4px solid #F4A261;padding:10px 16px;margin:10px 0;border-radius:5px;font-size:13px}
+.desc{background:#f8f9fa;padding:12px 18px;margin:10px 0;border-radius:5px;border-left:3px solid #457B9D;font-size:14px;line-height:1.6}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:15px}
+@media(max-width:768px){.grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<h1>Supplementary Materials</h1>
+<p style="font-size:16px;color:#666;">
+  ISS basic stats &bull; CATE group effect &bull; Brain-behavior scatter &bull; Subnetwork decomposition &bull; 2026-05-07
+</p>
+
+<!-- ======================= S1. ISS Basic Stats ======================= -->
+<h2>S1. ISS Component Basic Description</h2>
+<p>ISS component: 141 edges, 38 nodes, identified via $\Delta Z \sim \text{Group}$ NBS (F&gt;2.5, 5000 perm, p=0.0002).</p>
+
+<div class="desc">
+<strong>Descriptive statistics (ISS $\Delta Z$):</strong><br>
+sham: n=8, mean=+0.0447, sd=0.1723, [-0.2472, 0.2489]<br>MT: n=6, mean=+0.1311, sd=0.3348, [-0.3239, 0.5257]<br>PG: n=8, mean=+0.2040, sd=0.3671, [-0.3905, 0.7541]<br>MtPg: n=7, mean=-0.4821, sd=0.2700, [-0.8249, -0.1082]
+</div>
+
+<div class="grid">
+<div class="fig">
+  <img src="sensitivity/figures/MirrorTherapy_ISS_deltaZ_Boxplot_2026-05-07.png" alt="ISS Boxplot">
+  <div class="cap">Fig S1: ISS $\Delta Z$ by group.</div>
+</div>
+<div class="fig">
+  <img src="sensitivity/figures/MirrorTherapy_ISS_deltaZ_Interaction_2026-05-07.png" alt="ISS Interaction">
+  <div class="cap">Fig S2: ISS interaction (MT $\times$ PG).</div>
+</div>
+</div>
+
+<!-- ======================= S2. CATE ======================= -->
+<h2>S2. CATE: ANCOVA Group Effect</h2>
+<p>Model: $\text{Post\_FC} \sim \text{Group} + \text{Pre\_FC}$ (Type II SS). Group effect: $F$ = 4.584, $p$ = 0.0109.</p>
+<p>Post-hoc pairwise comparisons (FDR corrected):</p>
+<table>
+<tr><th>Pair</th><th>Adj. diff</th><th>$p$ (raw)</th><th>$p$ (FDR)</th></tr>
+<tr><td>MT-MtPg</td><td>0.2530</td><td>0.0898</td><td>0.1795</td></tr>
+<tr><td>MT-PG</td><td>-0.1893</td><td>0.1815</td><td>0.2722</td></tr>
+<tr><td>MT-sham</td><td>0.1050</td><td>0.4341</td><td>0.4341</td></tr>
+<tr class="hl"><td>MtPg-PG</td><td>-0.4422</td><td>0.0014</td><td>0.0085</td></tr>
+<tr><td>MtPg-sham</td><td>-0.1480</td><td>0.2880</td><td>0.3457</td></tr>
+<tr><td>PG-sham</td><td>0.2943</td><td>0.0323</td><td>0.0970</td></tr>
+
+</table>
+<div class="warn">
+<b>Note:</b> CATE results are reported for completeness. No interaction inference is drawn from this model.
+</div>
+
+<!-- ======================= S3. Brain-Behavior ======================= -->
+<h2>S3. Brain-Behavior Scatter Plots</h2>
+<p>Spearman correlations between six brain $\Delta Z$ metrics and four clinical change scores. All 24 scatter plots are exploratory &mdash; no correlations survived FDR correction ($q &lt; 0.05$).</p>
+
+<h3>S3.1 SNB_dZ</h3>
+<div class="grid">
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_SNB_dZ_vs_ΔFMA_total_2026-05-07.png"><div class="cap">SNB vs $\Delta$FMA_total</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_SNB_dZ_vs_ΔFMA_prox_2026-05-07.png"><div class="cap">SNB vs $\Delta$FMA_prox</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_SNB_dZ_vs_ΔFMA_dist_2026-05-07.png"><div class="cap">SNB vs $\Delta$FMA_dist</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_SNB_dZ_vs_ΔARAT_2026-05-07.png"><div class="cap">SNB vs $\Delta$ARAT</div></div>
+</div>
+
+<h3>S3.2 ISS_dZ</h3>
+<div class="grid">
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_ISS_dZ_vs_ΔFMA_total_2026-05-07.png"><div class="cap">ISS vs $\Delta$FMA_total</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_ISS_dZ_vs_ΔFMA_prox_2026-05-07.png"><div class="cap">ISS vs $\Delta$FMA_prox</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_ISS_dZ_vs_ΔFMA_dist_2026-05-07.png"><div class="cap">ISS vs $\Delta$FMA_dist</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_ISS_dZ_vs_ΔARAT_2026-05-07.png"><div class="cap">ISS vs $\Delta$ARAT</div></div>
+</div>
+
+<h3>S3.3 InterHemi_dZ</h3>
+<div class="grid">
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_InterHemi_dZ_vs_ΔFMA_total_2026-05-07.png"><div class="cap">InterHemi vs $\Delta$FMA_total</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_InterHemi_dZ_vs_ΔFMA_prox_2026-05-07.png"><div class="cap">InterHemi vs $\Delta$FMA_prox</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_InterHemi_dZ_vs_ΔFMA_dist_2026-05-07.png"><div class="cap">InterHemi vs $\Delta$FMA_dist</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_InterHemi_dZ_vs_ΔARAT_2026-05-07.png"><div class="cap">InterHemi vs $\Delta$ARAT</div></div>
+</div>
+
+<h3>S3.4 IpsiIntra_dZ</h3>
+<div class="grid">
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_IpsiIntra_dZ_vs_ΔFMA_total_2026-05-07.png"><div class="cap">IpsiIntra vs $\Delta$FMA_total</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_IpsiIntra_dZ_vs_ΔFMA_prox_2026-05-07.png"><div class="cap">IpsiIntra vs $\Delta$FMA_prox</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_IpsiIntra_dZ_vs_ΔFMA_dist_2026-05-07.png"><div class="cap">IpsiIntra vs $\Delta$FMA_dist</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_IpsiIntra_dZ_vs_ΔARAT_2026-05-07.png"><div class="cap">IpsiIntra vs $\Delta$ARAT</div></div>
+</div>
+
+<h3>S3.5 ContraIntra_dZ</h3>
+<div class="grid">
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_ContraIntra_dZ_vs_ΔFMA_total_2026-05-07.png"><div class="cap">ContraIntra vs $\Delta$FMA_total</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_ContraIntra_dZ_vs_ΔFMA_prox_2026-05-07.png"><div class="cap">ContraIntra vs $\Delta$FMA_prox</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_ContraIntra_dZ_vs_ΔFMA_dist_2026-05-07.png"><div class="cap">ContraIntra vs $\Delta$FMA_dist</div></div>
+<div class="fig"><img src="supplementary/MirrorTherapy_BrainBehavior_ContraIntra_dZ_vs_ΔARAT_2026-05-07.png"><div class="cap">ContraIntra vs $\Delta$ARAT</div></div>
+</div>
+
+<!-- ======================= S4. Subnetwork ======================= -->
+<h2>S4. Subnetwork Decomposition (Exploratory, Uncorrected)</h2>
+<div class="warn">
+<b>Warning:</b> The following subnetwork analyses are exploratory and have not been corrected for multiple comparisons across subnetworks. They are presented for descriptive purposes only and should not be used for confirmatory inference.
+</div>
+
+<h3>S4.1 2 &times; 2 Factorial ANCOVA by Subnetwork</h3>
+<p>Model: $\text{Post\_FC} \sim \text{MT} \times \text{PG} + \text{Pre\_FC}$ (Type II SS).</p>
+<table>
+<tr><th>Subnetwork</th><th>n</th><th>$F_{\text{MT}\times\text{PG}}$</th><th>$p$</th><th>$\eta^2_p$</th></tr>
+<tr><td>Ipsi-Intra</td><td>29</td><td>0.351</td><td>0.5591</td><td>0.014</td></tr>
+<tr><td>Contra-Intra</td><td>30</td><td>6.683</td><td>0.0160</td><td>0.211</td></tr>
+<tr class="hl"><td>Inter-Hemisphere</td><td>30</td><td>11.555</td><td>0.0023</td><td>0.316</td></tr>
+<tr><td>Marginal</td><td>29</td><td>10.530</td><td>0.0034</td><td>0.305</td></tr>
+
+</table>
+
+<h3>S4.2 Group Means by Subnetwork</h3>
+<table>
+<tr><th>Subnetwork</th><th>Sham</th><th>MT</th><th>PG</th><th>MtPg</th></tr>
+<tr><td>Ipsi-Intra</td><td>+0.3267</td><td>-0.1019</td><td>+0.1647</td><td>-0.3144</td></tr>
+<tr><td>Contra-Intra</td><td>+0.0729</td><td>+0.3386</td><td>+0.1736</td><td>-0.3788</td></tr>
+<tr><td>Inter-Hemisphere</td><td>+0.0669</td><td>+0.2221</td><td>+0.1762</td><td>-0.3428</td></tr>
+<tr><td>Marginal</td><td>+0.0569</td><td>+0.1327</td><td>+0.1562</td><td>-0.4474</td></tr>
+
+</table>
+
+<div class="fig" style="max-width:700px;margin:20px auto;">
+  <img src="../figures/nbs_subnetwork_bars.png" alt="Subnetwork Bars" style="max-height:320px;">
+  <div class="cap">Fig S3: Subnetwork $\Delta Z$ by group (exploratory).</div>
+</div>
+
+<div style="text-align:center;color:#888;font-size:13px;margin-top:40px;border-top:1px solid #ddd;padding-top:15px;">
+  Generated 2026-05-07 &bull; Supplementary &bull; fNIRS Mirror Therapy Project
+</div>
+</body>
+</html>

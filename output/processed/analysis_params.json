@@ -1,0 +1,28 @@
+{
+  "wavelet_type": "db4",
+  "wavelet_iqr_thresh": 1.5,
+  "bandpass_low": 0.01,
+  "bandpass_high": 0.1,
+  "bandpass_order": 3,
+  "wavelength_1": 730,
+  "wavelength_2": 850,
+  "dpf_wl1": 6.0,
+  "dpf_wl2": 5.5,
+  "sd_distance": 3.0,
+  "epsilon_hbo": [
+    0.4384,
+    1.0587
+  ],
+  "epsilon_hbr": [
+    1.3027,
+    0.6926
+  ],
+  "hrf_model": "spm_double_gamma",
+  "hrf_peak_time": 6.0,
+  "block_duration": 20.0,
+  "alpha": 0.05,
+  "multiple_comparison_correction": "fdr_bh",
+  "flip_midline_method": "median_source_detector_x",
+  "analysis_date": "2026-07-09T16:37:27.624159",
+  "python_version": "3.13.13"
+}

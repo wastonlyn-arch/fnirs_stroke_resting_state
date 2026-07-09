@@ -1,0 +1,31 @@
+{
+  "participant_id": {
+    "Description": "Subject ID in BIDS format"
+  },
+  "group": {
+    "Description": "Treatment group assignment",
+    "Levels": {
+      "Sham": "Conventional rehabilitation control",
+      "MT": "Mirror Therapy",
+      "PG": "Pneumatic Glove training",
+      "MtPg": "Combined MT+PG intervention"
+    }
+  },
+  "lesion_side": {
+    "Description": "Hemisphere of stroke lesion",
+    "Levels": {
+      "左侧": "Left hemisphere lesion",
+      "右侧": "Right hemisphere lesion"
+    }
+  },
+  "age": {
+    "Description": "Age at enrollment (years)"
+  },
+  "gender": {
+    "Description": "Biological sex",
+    "Levels": {
+      "男": "Male",
+      "女": "Female"
+    }
+  }
+}
