@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "homer2snirf"
+version = "0.1.0"
+description = "Convert legacy Homer2 .nirs (MATLAB) fNIRS files to SNIRF/HDF5 format"
+readme = "README.md"
+license = {text = "BSD-3-Clause"}
+authors = [
+    {name = "fNIRS Mirror Therapy Project contributors"},
+]
+keywords = ["fnirs", "snirf", "homer2", "nirs", "neuroimaging", "mne"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "License :: OSI Approved :: BSD License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+]
+
+requires-python = ">=3.10"
+dependencies = [
+    "numpy>=1.24",
+    "scipy>=1.10",
+    "mne>=1.6",
+    "mne-nirs>=0.7",
+]
+
+[project.scripts]
+nirs2snirf = "homer2snirf:main"
+
+[project.urls]
+Homepage = "https://github.com/xxx/homer2snirf"
+Repository = "https://github.com/xxx/homer2snirf"
+Issues = "https://github.com/xxx/homer2snirf/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
